@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spam Shield AI</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-icon">✉</div><div>Spam Message<br>Classifier</div></div>
+    <nav id="navigation">
+      <button class="nav-item active" data-page="home"><span>⌂</span>Home</button>
+      <button class="nav-item" data-page="predict"><span>⌕</span>Predict Message</button>
+      <button class="nav-item" data-page="batch"><span>▤</span>Batch Prediction</button>
+      <button class="nav-item" data-page="performance"><span>▥</span>Model Performance</button>
+      <button class="nav-item" data-page="dataset"><span>▣</span>Dataset Info</button>
+      <button class="nav-item" data-page="about"><span>ⓘ</span>About</button>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span><span id="apiStatus">Checking service…</span></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><div class="eyebrow">AI MESSAGE INTELLIGENCE</div><div class="top-title">Spam Shield</div></div><div class="top-right"><span class="live-pill"><i></i> AI classifier</span></div></header>
+    <section id="page-home" class="page active">
+      <div class="hero"><div class="hero-copy"><div class="eyebrow light">MESSAGE SECURITY WORKSPACE</div><h1>Spam Message Classifier</h1><p>Check whether a message is Spam or Not Spam using machine learning.</p><button class="primary-btn" data-goto="predict">Analyse a message <span>→</span></button></div><div class="hero-art"><div class="shield">✓</div><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div></div></div>
+      <div class="section-head"><div><h2>Overview</h2><p>Live statistics from the trained model and dataset.</p></div><span class="subtle-tag">MODEL INSIGHTS</span></div>
+      <div class="metric-grid four">
+        <article class="metric-card"><div class="metric-top"><span>Dataset messages</span><span class="metric-icon blue">▤</span></div><div id="homeTotal" class="metric-value">—</div><div class="metric-foot">Labeled messages</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Spam messages</span><span class="metric-icon red">!</span></div><div id="homeSpam" class="metric-value">—</div><div class="metric-foot">Labelled as spam</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Not Spam messages</span><span class="metric-icon green">✓</span></div><div id="homeHam" class="metric-value">—</div><div class="metric-foot">Labelled as ham</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Test accuracy</span><span class="metric-icon purple">◎</span></div><div id="homeAccuracy" class="metric-value">—</div><div class="metric-foot">Held-out test set</div></article>
+      </div>
+      <div class="content-grid">
+        <article class="panel quick-panel"><div class="panel-heading"><div><h3>Message analysis</h3><p>Run a classification on any message.</p></div><span class="panel-symbol">⌕</span></div><textarea id="homeMessage" placeholder="Enter the message you want to check…" maxlength="5000"></textarea><div class="input-bottom"><span id="homeCount">0 / 5000</span><button class="primary-btn small" id="homeAnalyze">Predict message →</button></div><div id="homeResult"></div></article>
+        <article class="panel"><div class="panel-heading"><div><h3>Dataset distribution</h3><p>Breakdown of labeled messages</p></div></div><div id="homeDonut" class="chart-box"></div><div class="legend-row"><span><i class="legend-dot safe"></i>Not Spam <b id="legendHam">—</b></span><span><i class="legend-dot spam"></i>Spam <b id="legendSpam">—</b></span></div></article>
+      </div>
+      <div class="footer-note">Model statistics are generated from the backend training and evaluation pipeline.</div>
+    </section>
+
+    <section id="page-predict" class="page">
+      <div class="page-heading"><div class="eyebrow">REAL-TIME CLASSIFICATION</div><h1>Predict Message</h1><p>Paste a message to classify it with the trained machine-learning model.</p></div>
+      <div class="predict-layout"><article class="panel"><label class="field-label" for="predictMessage">Message text</label><textarea id="predictMessage" maxlength="5000" placeholder="Paste your SMS or email message here…"></textarea><div class="input-bottom"><span id="predictCount">0 / 5000</span><button id="predictButton" class="primary-btn">Classify message <span>→</span></button></div><div id="predictResult"></div></article><aside class="panel privacy-panel"><div class="privacy-icon">✦</div><h3>Message analysis</h3><p>Text is sent to your configured classifier API for prediction. Do not submit passwords, payment details, or other sensitive information.</p><div class="privacy-line"><span>Model</span><b>TF-IDF + Logistic Regression</b></div><div class="privacy-line"><span>Output</span><b>Spam / Not Spam</b></div></aside></div>
+    </section>
+
+    <section id="page-batch" class="page">
+      <div class="page-heading"><div class="eyebrow">BULK MESSAGE SCREENING</div><h1>Batch Prediction</h1><p>Classify multiple messages in a CSV file and export the results.</p></div>
+      <article class="panel upload-panel"><div class="upload-icon">⇧</div><div><h3>Upload CSV file</h3><p>CSV must contain a column named <code>message</code> or <code>text</code>.</p><input id="csvFile" type="file" accept=".csv,text/csv"></div><button class="primary-btn" id="batchButton">Classify file →</button></article>
+      <div id="batchError" class="notice error hidden"></div><div id="batchSummary" class="metric-grid three hidden"></div>
+      <article id="batchTablePanel" class="panel hidden"><div class="panel-heading"><div><h3>Prediction results</h3><p>Classification output from the current file</p></div><button id="downloadCsv" class="secondary-btn">↓ Download results</button></div><div class="table-wrap"><table id="batchTable"><thead><tr><th>#</th><th>Message</th><th>Prediction</th><th>Confidence</th></tr></thead><tbody></tbody></table></div></article>
+    </section>
+
+    <section id="page-performance" class="page">
+      <div class="page-heading"><div class="eyebrow">MODEL EVALUATION</div><h1>Model Performance</h1><p>Evaluation metrics calculated on a held-out test set.</p></div>
+      <div class="metric-grid four">
+        <article class="metric-card"><div class="metric-top"><span>Accuracy</span><span class="metric-icon blue">◎</span></div><div id="perfAccuracy" class="metric-value">—</div><div class="metric-foot">Overall correct predictions</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Precision</span><span class="metric-icon green">◉</span></div><div id="perfPrecision" class="metric-value">—</div><div class="metric-foot">Spam predictions that were spam</div></article>
+        <article class="metric-card"><div class="metric-top"><span>Recall</span><span class="metric-icon orange">⌁</span></div><div id="perfRecall" class="metric-value">—</div><div class="metric-foot">Actual spam detected</div></article>
+        <article class="metric-card"><div class="metric-top"><span>F1-score</span><span class="metric-icon purple">✳</span></div><div id="perfF1" class="metric-value">—</div><div class="metric-foot">Precision and recall balance</div></article>
+      </div>
+      <div class="content-grid"><article class="panel"><div class="panel-heading"><div><h3>Confusion matrix</h3><p>Actual versus predicted classes</p></div></div><div id="confusionChart" class="chart-box tall"></div></article><article class="panel"><div class="panel-heading"><div><h3>Classification report</h3><p>Per-class evaluation</p></div></div><div class="table-wrap"><table id="reportTable"><thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1-score</th><th>Support</th></tr></thead><tbody></tbody></table></div></article></div>
+    </section>
+
+    <section id="page-dataset" class="page">
+      <div class="page-heading"><div class="eyebrow">DATA EXPLORER</div><h1>Dataset Information</h1><p>Explore the labeled messages used to train the classifier.</p></div>
+      <div class="metric-grid three"><article class="metric-card"><div class="metric-top"><span>Total messages</span><span class="metric-icon blue">▤</span></div><div id="dataTotal" class="metric-value">—</div><div class="metric-foot">Labeled dataset</div></article><article class="metric-card"><div class="metric-top"><span>Spam messages</span><span class="metric-icon red">!</span></div><div id="dataSpam" class="metric-value">—</div><div class="metric-foot">Label: spam</div></article><article class="metric-card"><div class="metric-top"><span>Not Spam messages</span><span class="metric-icon green">✓</span></div><div id="dataHam" class="metric-value">—</div><div class="metric-foot">Label: ham</div></article></div>
+      <div class="content-grid"><article class="panel"><div class="panel-heading"><div><h3>Label distribution</h3><p>Number of examples in each class</p></div></div><div id="datasetBar" class="chart-box tall"></div></article><article class="panel details-panel"><h3>Dataset and preparation</h3><div class="detail-row"><span>Source</span><b>UCI SMS Spam Collection</b></div><div class="detail-row"><span>Task</span><b>Binary text classification</b></div><div class="detail-row"><span>Preprocessing</span><b>Text cleaning, URL and number handling</b></div><div class="detail-row"><span>Features</span><b>TF-IDF unigrams and bigrams</b></div><div class="detail-row"><span>Model</span><b>Logistic Regression</b></div><div class="detail-row"><span>Split</span><b>80% train / 20% test</b></div></article></div>
+    </section>
+
+    <section id="page-about" class="page">
+      <div class="page-heading"><div class="eyebrow">PROJECT OVERVIEW</div><h1>About this project</h1><p>A practical text-classification system built with Python and machine learning.</p></div>
+      <article class="panel about-hero"><div class="about-icon">✦</div><div><h2>Spam Message Classifier</h2><p>The application evaluates text messages and estimates whether they resemble spam or normal messages. The prediction is produced by a supervised machine-learning pipeline.</p></div></article>
+      <h2 class="section-title">Technologies used</h2><div class="tech-grid"><article class="tech-card"><div class="tech-emoji">🐍</div><b>Python</b><span>Core language</span></article><article class="tech-card"><div class="tech-emoji">🧠</div><b>Scikit-learn</b><span>Machine learning</span></article><article class="tech-card"><div class="tech-emoji">🔤</div><b>TF-IDF</b><span>Text features</span></article><article class="tech-card"><div class="tech-emoji">⚡</div><b>FastAPI</b><span>Prediction API</span></article><article class="tech-card"><div class="tech-emoji">🌐</div><b>Netlify</b><span>Web frontend hosting</span></article></div>
+      <article class="panel workflow"><h3>Classification workflow</h3><div class="workflow-steps"><span>Dataset</span><i>→</i><span>Text cleaning</span><i>→</i><span>TF-IDF</span><i>→</i><span>Logistic Regression</span><i>→</i><span>Prediction</span></div><p>Predictions are estimates and can be incorrect. Do not rely on the classifier as the only filter for important messages.</p></article>
+    </section>
+    <div id="globalError" class="global-error hidden"></div>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body></html>
